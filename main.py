@@ -2,7 +2,8 @@ import tkinter
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import messagebox
-from ttkthemes import ThemedStyle, ThemedTk
+from ttkthemes import ThemedStyle
+
 
 def label_constructor(frame, text, row, column):
     label = ttk.Label(frame,  text=text)
@@ -21,18 +22,29 @@ class CustomCombobox(ttk.Combobox):
         super().__init__(master, **kwargs)
         self.configure(style='Custom.TCombobox')
 
-
-def combobox_constructor(frame, row, column, values):
+def combobox_constructor(frame, values, row, column):
     combobox = ttk.Combobox(frame, values=values, state='readonly')
     combobox.grid(row=row, column=column)
     return combobox
 
 
-def spinbox_constructor(frame, row, column, from_, to):
-    spinbox = ttk.Spinbox(frame, from_=from_, to=to)
+def spinbox_constructor(frame, from_, to, row, column,):
+    spinbox = ttk.Spinbox(frame, from_=from_, to=to, state='readonly')
     spinbox.grid(row=row, column=column)
     return spinbox
 
+def check_constructor(frame, text, value_variable, onvalue, offvalue, row, column,):
+    checkbutton = ttk.Checkbutton(
+        frame, text=text, variable=value_variable, onvalue=onvalue, offvalue=offvalue
+    )
+    checkbutton.grid(row=row, column=column)
+    return checkbutton
+
+
+def button_constructor(frame, text, command, row, column,):
+    button = ttk.Button(frame, text=text, command=command)
+    button.grid(row=row, column=column, sticky='news', padx=20, pady=10)
+    return button
 
 def enter_data():
     terms_status = terms_status_var.get()
@@ -52,7 +64,6 @@ def enter_data():
         # check if the widgets are null
         for widget in user_info_frame.winfo_children():
             if not isinstance(widget, ttk.Label):
-                print(widget.get())
                 if (widget.get() == ''):
                     messagebox.showerror(
                         title="Error", message="There are missing fields")
@@ -89,7 +100,7 @@ user_info_frame.grid(row=0, column=0, padx=20, pady=10)
 
 title_label = label_constructor(user_info_frame, 'Title', 0, 0)
 title_combobox = combobox_constructor(
-    user_info_frame, 1, 0, ['', 'Mr.', 'Ms.', 'Dr.']
+    user_info_frame, ['', 'Mr.', 'Ms.', 'Dr.'], 1, 0,
 )
 
 first_name_label = label_constructor(user_info_frame, 'First Name', 0, 1)
@@ -99,13 +110,11 @@ last_name_label = label_constructor(user_info_frame, 'Last Name', 0, 2)
 last_name_entry = entry_constructor(user_info_frame, 1, 2)
 
 age_label = label_constructor(user_info_frame, 'Age', 2, 0)
-age_spinbox = ttk.Spinbox(
-    user_info_frame, from_=18, to=110, state='readonly')
-age_spinbox.grid(row=3, column=0)
+age_spinbox = spinbox_constructor(user_info_frame, 18, 110, 3, 0)
 
 nationality_label = label_constructor(user_info_frame, 'Nationality', 2, 1)
 nationality_combobox = combobox_constructor(
-    user_info_frame, 3, 1, ['Brazil', 'Not Brazil']
+    user_info_frame,['Brazil', 'Not Brazil'] ,3, 1
 )
 
 # put a padding in all grids
@@ -116,26 +125,20 @@ for widget in user_info_frame.winfo_children():
 courses_frame = ttk.LabelFrame(frame)
 courses_frame.grid(row=1, column=0, sticky='news', padx=20, pady=10)
 
-registered_label = ttk.Label(courses_frame, text='Registration Status')
+registered_label = label_constructor(courses_frame, 'Registration Status',0,0)
 
 reg_status_var = tkinter.StringVar(value='Not Registered')
-registered_check = ttk.Checkbutton(
-    courses_frame, text='Currently Registered', variable=reg_status_var, onvalue='Registered', offvalue='Not Registered'
+registered_check = check_constructor(
+    courses_frame, 'Currently Registered', reg_status_var, 'Registered', 'Not Registered', 1, 0
 )
-registered_label.grid(row=0, column=0)
-registered_check.grid(row=1, column=0)
 
-num_courses_label = ttk.Label(courses_frame, text='# Completed Courses')
-num_courses_spinbox = ttk.Spinbox(
-    courses_frame, from_=0, to='infinity', state='readonly')
-num_courses_label.grid(row=0, column=1)
+num_courses_label = label_constructor(courses_frame, '# Completed Courses',0,1)
+num_courses_spinbox = spinbox_constructor(
+    courses_frame,0,'infinity',1,1)
 num_courses_spinbox.grid(row=1, column=1)
 
-num_semesters_label = ttk.Label(courses_frame, text='# Semesters')
-num_semesters_spinbox = ttk.Spinbox(
-    courses_frame, from_=0, to='infinity', state='readonly')
-num_semesters_label.grid(row=0, column=2)
-num_semesters_spinbox.grid(row=1, column=2)
+num_semesters_label = label_constructor(courses_frame, '# Semesters',0,2)
+num_semesters_spinbox = spinbox_constructor(courses_frame, 0, 'infinity',1,2)
 
 for widget in courses_frame.winfo_children():
     widget.grid_configure(padx=10, pady=5)
@@ -145,14 +148,13 @@ terms_frame = ttk.LabelFrame(frame)
 terms_frame.grid(row=2, column=0, sticky='news', padx=20, pady=10)
 
 terms_status_var = tkinter.StringVar(value='Not Accepted')
-terms_check = ttk.Checkbutton(
-    terms_frame, text='I Accept the terms and conditions',
-    variable=terms_status_var, onvalue='Accepted', offvalue='Not Accepted'
+terms_check = check_constructor(
+    terms_frame, 'I Accept the terms and conditions',
+    terms_status_var, 'Accepted', 'Not Accepted',0,0
 )
-terms_check.grid(row=0, column=0)
 
 # Button
-button = ttk.Button(frame, text='Enter Data', command=enter_data)
-button.grid(row=3, column=0, sticky='news', padx=20, pady=10)
+button = button_constructor(frame, 'Enter Data', enter_data,3,0)
+
 
 window.mainloop()
